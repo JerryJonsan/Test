@@ -1,0 +1,6 @@
+Suppose there are two developers working on a project, namely Tom and Jerry.
+Both users have generated public keys. Let us see how to use these keys for
+authentication.
+Tom added his public key to the server by using ssh-copy-id command as given
+below:
+[tom@CentOS ~]$ pwd
