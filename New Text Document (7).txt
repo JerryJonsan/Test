@@ -1,0 +1,50 @@
+<script>
+  function onLoad() {
+    var video = document.getElementById('video');
+
+    if (!video.mediaKeys) {
+      navigator.requestMediaKeySystemAccess('org.w3.clearkey', [
+        { initDataTypes: ['webm'],
+          videoCapabilities: [{ contentType: 'video/webm; codecs="vp8"' }] }
+      ]).then(
+        function(keySystemAccess) {
+          var promise =  keySystemAccess.createMediaKeys();
+          promise.catch(
+            console.error.bind(console, 'Unable to create MediaKeys')
+          );
+          promise.then(
+            function(createdMediaKeys) {
+              return video.setMediaKeys(createdMediaKeys);
+            }
+          ).catch(
+            console.error.bind(console, 'Unable to set MediaKeys')
+          );
+          promise.then(
+            function(createdMediaKeys) {
+              var te = new TextEncoder();
+              var initData = te.encode( '{"kids":["LwVHf8JLtPrv2GUXFW2v_A"]}');
+              var keySession = createdMediaKeys.createSession();
+              keySession.addEventListener("message", handleMessage, false);
+              return keySession.generateRequest('keyids', initData);
+            }
+          ).catch(
+            console.error.bind(console, 'Unable to create or initialize key session')
+          );
+        }
+      );
+    }
+  }
+
+  function handleMessage(event) {
+    var keySession = event.target;
+    var te = new TextEncoder();
+    var license = te.encode('{"keys":[{"kty":"oct","k":"tQ0bJVWb6b0KPL6KtZIy_A","kid":"LwVHf8JLtPrv2GUXFW2v_A"}],"type":"temporary"}');
+    keySession.update(license).catch(
+      console.error.bind(console, 'update() failed')
+    );
+  }
+</script>
+
+<body onload='onLoad()'>
+  <video src='foo.webm' autoplay id='video'></video>
+</body>
